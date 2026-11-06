@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Dr. {{ doctor.get_full_name }} – CareNest{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+
+    <!-- Back Navigation -->
+    <a href="{% url 'appointments:doctor_directory' %}"
+       class="inline-flex items-center text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Back to Dermatologists
+    </a>
+
+    <!-- Doctor Hero Card -->
+    <div class="p-8 rounded-3xl bg-gradient-to-br from-teal-600 to-teal-800 text-white shadow-xl shadow-teal-700/25 relative overflow-hidden">
+        <!-- Background decoration -->
+        <div class="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/5"></div>
+        <div class="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white/5"></div>
+
+        <div class="relative flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <!-- Avatar -->
+            <div class="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-black text-3xl border-2 border-white/30 shadow-lg flex-shrink-0">
+                {{ doctor.first_name|default:doctor.username|make_list|first|upper }}
+            </div>
+
+            <!-- Doctor Info -->
+            <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/20">
+                        Pediatric Dermatologist
+                    </span>
+                    {% if doctor.doctor_profile.is_verified %}
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-400/30 border border-emerald-300/40 text-emerald-100">
+                            ✓ Verified
+                        </span>
+                    {% endif %}
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                    Dr. {{ doctor.get_full_name|default:doctor.username }}
+                </h1>
+                <p class="text-teal-100 text-sm mt-1">
+                    {{ doctor.doctor_profile.specialization|default:"Pediatric Dermatology" }}
+                </p>
+                <p class="text-teal-200 text-xs mt-2">
+                    {{ doctor.doctor_profile.experience_years|default:"1" }} year{{ doctor.doctor_profile.experience_years|default:1|pluralize }} of experience
+                    &nbsp;·&nbsp;
+                    Consultation fee: <strong class="text-white">\${{ doctor.doctor_profile.consultation_fee|default:"50.00" }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left Column: About + Book -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- About -->
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <h2 class="text-base font-bold text-slate-900 dark:text-white">About Dr. {{ doctor.first_name }}</h2>
+                {% if doctor.doctor_profile.bio %}
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        {{ doctor.doctor_profile.bio }}
+                    </p>
+                {% else %}
+                    <p class="text-sm text-slate-400 italic">
+                        Dr. {{ doctor.get_full_name }} is a certified pediatric dermatologist offering remote consultations via CareNest.
+                        Specialized in evidence-based treatment of childhood skin conditions.
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- Specializations -->
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <h2 class="text-base font-bold text-slate-900 dark:text-white">Clinical Expertise</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% with specialties="Atopic Dermatitis,Psoriasis,Infantile Hemangiomas,Eczema,Contact Dermatitis,Molluscum Contagiosum,Acne,Warts,Urticaria" %}
+                        {% for specialty in specialties|split:"," %}
+                            <span class="text-xs px-3 py-1.5 rounded-full bg-teal-50 text-teal-800 dark:bg-teal-950/40 dark:text-teal-300 border border-teal-200 dark:border-teal-800 font-medium">
+                                {{ specialty|strip }}
+                            </span>
+                        {% endfor %}
+                    {% endwith %}
+                </div>
+            </div>
+
+            <!-- How the consultation works -->
+            <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <h2 class="text-base font-bold text-slate-900 dark:text-white">How It Works</h2>
+                <ol class="space-y-3">
+                    {% for step in steps %}
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                                {{ forloop.counter }}
+                            </div>
+                            <span class="text-sm text-slate-600 dark:text-slate-400">{{ step }}</span>
+                        </li>
+                    {% empty %}
+                        {% for step in "Book your appointment online,Upload clear photos of the skin condition,AI pre-analysis assists the doctor,Doctor reviews and writes your consultation report,Download your treatment plan as PDF"|split:"," %}
+                            <li class="flex items-start gap-3">
+                                <div class="w-6 h-6 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    {{ forloop.counter }}
+                                </div>
+                                <span class="text-sm text-slate-600 dark:text-slate-400">{{ step|strip }}</span>
+                            </li>
+                        {% endfor %}
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+
+        <!-- Right Column: Booking CTA -->
+        <div class="space-y-6">
+
+            <!-- Book Appointment Card -->
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5 sticky top-6">
+                <h2 class="text-base font-bold text-slate-900 dark:text-white">Book a Consultation</h2>
+
+                <!-- Price -->
+                <div class="p-4 rounded-xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 flex items-center justify-between">
+                    <span class="text-sm text-slate-600 dark:text-slate-400 font-medium">Consultation Fee</span>
+                    <span class="text-xl font-extrabold text-teal-700 dark:text-teal-300">\${{ doctor.doctor_profile.consultation_fee|default:"50.00" }}</span>
+                </div>
+
+                <!-- Type Tags -->
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-xs px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 font-medium border border-emerald-200 dark:border-emerald-800">
+                        Remote / Async
+                    </span>
+                    <span class="text-xs px-2 py-1 rounded-lg bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300 font-medium border border-sky-200 dark:border-sky-800">
+                        Image-based
+                    </span>
+                    <span class="text-xs px-2 py-1 rounded-lg bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300 font-medium border border-violet-200 dark:border-violet-800">
+                        AI-Assisted
+                    </span>
+                </div>
+
+                {% if user.is_authenticated and user.is_parent %}
+                    <a href="{% url 'appointments:book_appointment' %}?doctor={{ doctor.pk }}"
+                       class="block w-full text-center px-4 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md shadow-teal-600/25 transition-colors">
+                        Book with Dr. {{ doctor.first_name }}
+                    </a>
+                    <a href="{% url 'ai_assistant:symptom_chat' %}"
+                       class="block w-full text-center px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
+                        Pre-consultation AI Chat
+                    </a>
+                {% elif user.is_authenticated %}
+                    <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-xs text-amber-700 dark:text-amber-300">
+                        Only parent accounts can book appointments.
+                    </div>
+                {% else %}
+                    <a href="{% url 'accounts:register_parent' %}"
+                       class="block w-full text-center px-4 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md shadow-teal-600/25 transition-colors">
+                        Register to Book
+                    </a>
+                    <a href="{% url 'accounts:login' %}"
+                       class="block w-full text-center px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-colors">
+                        Already have an account? Sign in
+                    </a>
+                {% endif %}
+
+                <!-- Safety Note -->
+                <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed text-center">
+                    AI-generated observations are for clinical support only and do not constitute a diagnosis. All assessments are made by a licensed dermatologist.
+                </p>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Contact</h3>
+                <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <svg class="w-4 h-4 text-teal-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    {{ doctor.email }}
+                </div>
+                {% if doctor.phone_number %}
+                    <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                        <svg class="w-4 h-4 text-teal-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                        {{ doctor.phone_number }}
+                    </div>
+                {% endif %}
+                {% if doctor.doctor_profile.license_number %}
+                    <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-500">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        License: {{ doctor.doctor_profile.license_number }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+

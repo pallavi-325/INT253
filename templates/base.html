@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CareNest – Pediatric Teledermatology{% endblock %}</title>
+
+    <!-- Early Anti-FOUC Theme Script -->
+    <script>
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        teal: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        mint: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        slate: {
+                            750: '#233045',
+                            850: '#151f32',
+                            900: '#0f172a',
+                            950: '#0b1120',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/custom.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-200">
+
+    <!-- Top Navigation Header -->
+    {% include "components/navbar.html" %}
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% include "components/alert_messages.html" %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer with Clinical Safety Disclaimer -->
+    <footer class="bg-white dark:bg-slate-850 border-t border-slate-200 dark:border-slate-800 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 dark:text-slate-400 space-y-1">
+            <p class="font-medium text-amber-600 dark:text-amber-400">
+                ⚠️ Notice: If your child has an acute medical emergency, respiratory distress, or rapidly spreading petechial rash with fever, call 911 or visit the nearest emergency room immediately.
+            </p>
+            <p>&copy; 2026 CareNest Pediatric Teledermatology. All clinical rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Theme Switcher JavaScript -->
+    <script src="/static/js/theme.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

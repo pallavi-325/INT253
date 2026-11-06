@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}CareNest – Pediatric Teledermatology Platform{% endblock %}
+
+{% block content %}
+<div class="space-y-16 py-4">
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden rounded-3xl bg-gradient-to-b from-teal-500/10 via-transparent to-transparent dark:from-teal-950/20 border border-teal-100 dark:border-teal-900/40 p-8 sm:p-14 text-center">
+        <div class="max-w-3xl mx-auto space-y-6">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-300">
+                <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+                Board-Certified Pediatric Dermatologists Online
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+                Gentle, Expert Skin Care for Your Child — <span class="text-teal-600 dark:text-teal-400">From Home</span>
+            </h1>
+            <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+                Connect directly with specialized pediatric dermatologists, upload high-resolution skin photos, get OpenAI-assisted pre-consultation triage, and receive personalized treatment plans within 24 hours.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                <a href="{% url 'accounts:register_parent' %}" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-lg shadow-teal-600/30 transition-all hover:scale-105">
+                    Consult a Pediatric Dermatologist
+                </a>
+                <a href="{% url 'accounts:login' %}" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
+                    Existing Parent Login
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="space-y-8">
+        <div class="text-center max-w-2xl mx-auto">
+            <h2 class="text-xs uppercase tracking-widest text-teal-600 dark:text-teal-400 font-bold">Simple 4-Step Process</h2>
+            <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1">How Teledermatology Works</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm relative group hover:border-teal-500 transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 flex items-center justify-center font-black text-sm mb-4">1</div>
+                <h4 class="font-bold text-slate-900 dark:text-white mb-2">Child Profile</h4>
+                <p class="text-xs text-slate-600 dark:text-slate-400">Add child medical history, known allergies, previous conditions, and symptom timeline.</p>
+            </div>
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm relative group hover:border-teal-500 transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 flex items-center justify-center font-black text-sm mb-4">2</div>
+                <h4 class="font-bold text-slate-900 dark:text-white mb-2">Upload Clear Photos</h4>
+                <p class="text-xs text-slate-600 dark:text-slate-400">Capture overview and close-up photos of the affected skin with client-side quality validation.</p>
+            </div>
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm relative group hover:border-teal-500 transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 flex items-center justify-center font-black text-sm mb-4">3</div>
+                <h4 class="font-bold text-slate-900 dark:text-white mb-2">AI Pre-Triage</h4>
+                <p class="text-xs text-slate-600 dark:text-slate-400">OpenAI assistant verifies symptom context and flags clinical notes for the doctor.</p>
+            </div>
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm relative group hover:border-teal-500 transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 flex items-center justify-center font-black text-sm mb-4">4</div>
+                <h4 class="font-bold text-slate-900 dark:text-white mb-2">Care & Prescription</h4>
+                <p class="text-xs text-slate-600 dark:text-slate-400">Receive certified diagnosis, treatment instructions, and downloadable prescription report.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Treatable Conditions Grid -->
+    <section id="services" class="space-y-6">
+        <div class="text-center max-w-2xl mx-auto">
+            <h2 class="text-xs uppercase tracking-widest text-teal-600 dark:text-teal-400 font-bold">Clinical Scope</h2>
+            <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1">Conditions We Review Remotely</h3>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-center space-y-1">
+                <div class="text-2xl">🧸</div>
+                <p class="text-xs font-bold text-slate-900 dark:text-white">Atopic Eczema</p>
+            </div>
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-center space-y-1">
+                <div class="text-2xl">🍼</div>
+                <p class="text-xs font-bold text-slate-900 dark:text-white">Cradle Cap</p>
+            </div>
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-center space-y-1">
+                <div class="text-2xl">👶</div>
+                <p class="text-xs font-bold text-slate-900 dark:text-white">Diaper Rash</p>
+            </div>
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-center space-y-1">
+                <div class="text-2xl">🍓</div>
+                <p class="text-xs font-bold text-slate-900 dark:text-white">Hemangiomas</p>
+            </div>
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-center space-y-1">
+                <div class="text-2xl">🌿</div>
+                <p class="text-xs font-bold text-slate-900 dark:text-white">Contact Rash</p>
+            </div>
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-center space-y-1">
+                <div class="text-2xl">☀️</div>
+                <p class="text-xs font-bold text-slate-900 dark:text-white">Molluscum</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Clinician Safety Banner -->
+    <section id="safety" class="rounded-3xl bg-amber-500/10 border border-amber-200 dark:border-amber-900/50 p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">
+        <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+            ⚠️
+        </div>
+        <div class="space-y-1 text-center sm:text-left">
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Pediatric Clinical Safety Standard</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-300">
+                CareNest AI outputs are strictly non-diagnostic decision-support aids for licensed doctors. 100% of medical diagnoses, assessments, and prescriptions are issued solely by board-certified pediatric dermatologists.
+            </p>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+

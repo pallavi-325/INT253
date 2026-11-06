@@ -1,0 +1,184 @@
+{% load patient_tags %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CareNest Consultation Report #{{ consultation.id }}</title>
+    <style>
+        @page {
+            size: letter;
+            margin: 1.5cm;
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 8pt;
+                color: #64748b;
+            }
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            font-size: 10pt;
+            line-height: 1.4;
+        }
+        .header-table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #0d9488;
+            padding-bottom: 12px;
+        }
+        .brand-title {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #0f766e;
+        }
+        .brand-sub {
+            font-size: 9pt;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .section-heading {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #0f766e;
+            text-transform: uppercase;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 4px;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+        .info-table {
+            width: 100%;
+            margin-bottom: 14px;
+        }
+        .info-table td {
+            padding: 4px 0;
+            vertical-align: top;
+        }
+        .label {
+            font-weight: bold;
+            color: #475569;
+            width: 25%;
+        }
+        .box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+        .warning-box {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 14px;
+            font-size: 9pt;
+        }
+        .signature-block {
+            margin-top: 30px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <table class="header-table">
+        <tr>
+            <td>
+                <div class="brand-title">CareNest</div>
+                <div class="brand-sub">Pediatric Teledermatology Clinical Consultation Report</div>
+            </td>
+            <td align="right">
+                <strong>Report Reference:</strong> #CR-{{ consultation.id }}<br>
+                <strong>Date Issued:</strong> {{ consultation.finalized_at|default:consultation.created_at|date:"F d, Y" }}
+            </td>
+        </tr>
+    </table>
+
+    <!-- Patient Demographics -->
+    <div class="section-heading">Patient Demographics</div>
+    <table class="info-table">
+        <tr>
+            <td class="label">Patient Name:</td>
+            <td><strong>{{ child.full_name }}</strong></td>
+            <td class="label">Date of Birth:</td>
+            <td>{{ child.date_of_birth }} (Age: {{ child.date_of_birth|calculate_age }})</td>
+        </tr>
+        <tr>
+            <td class="label">Gender:</td>
+            <td>{{ child.get_gender_display }}</td>
+            <td class="label">Blood Group:</td>
+            <td>{{ child.blood_group }}</td>
+        </tr>
+        <tr>
+            <td class="label">Parent / Guardian:</td>
+            <td>{{ child.parent.get_full_name|default:child.parent.username }}</td>
+            <td class="label">Primary Concern:</td>
+            <td>{{ appointment.chief_complaint }}</td>
+        </tr>
+        {% if child.known_allergies %}
+        <tr>
+            <td class="label" style="color: #b91c1c;">Known Allergies:</td>
+            <td colspan="3" style="color: #b91c1c;"><strong>{{ child.known_allergies }}</strong></td>
+        </tr>
+        {% endif %}
+    </table>
+
+    <!-- Clinical Assessment -->
+    <div class="section-heading">Clinician Assessment & Examination</div>
+    <div class="box">
+        <strong>Primary Clinical Diagnosis:</strong><br>
+        <p>{{ consultation.clinical_assessment|linebreaksbr }}</p>
+        {% if consultation.differential_diagnosis %}
+            <br><strong>Differential Diagnoses Considered:</strong>
+            <p>{{ consultation.differential_diagnosis|linebreaksbr }}</p>
+        {% endif %}
+        <p><strong>Severity Grade:</strong> {{ consultation.get_severity_display }}</p>
+    </div>
+
+    <!-- Treatment & Prescriptions -->
+    {% if treatment_plan %}
+        <div class="section-heading">Prescribed Treatment & Medication Regimen</div>
+        <div class="box">
+            <strong>Prescription Details:</strong>
+            <p>{{ treatment_plan.prescribed_medications|linebreaksbr }}</p>
+        </div>
+
+        <div class="section-heading">Home Care & Bathing Instructions</div>
+        <div class="box">
+            <p>{{ treatment_plan.care_instructions|linebreaksbr }}</p>
+        </div>
+
+        {% if treatment_plan.follow_up_recommended %}
+            <div class="section-heading">Follow-up Recommendation</div>
+            <p>
+                <strong>Recommended Follow-up Date:</strong> {{ treatment_plan.follow_up_date|default:"As needed" }}<br>
+                {{ treatment_plan.follow_up_instructions }}
+            </p>
+        {% endif %}
+
+        <div class="warning-box">
+            <strong>[WARNING] Clinical Warning Signs:</strong><br>
+            {{ treatment_plan.warning_signs }}
+        </div>
+    {% endif %}
+
+    <!-- Physician Attestation Block -->
+    <table class="signature-block">
+        <tr>
+            <td style="width: 50%;"></td>
+            <td align="right" style="width: 50%;">
+                <div style="border-top: 1px solid #475569; padding-top: 6px; display: inline-block; min-width: 220px; text-align: center;">
+                    <strong>Dr. {{ doctor.get_full_name|default:doctor.username }}</strong><br>
+                    <span>Board Certified Pediatric Dermatologist</span><br>
+                    <span style="font-size: 8pt; color: #64748b;">Medical License: {{ doctor_profile.license_number|default:"Verified" }}</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

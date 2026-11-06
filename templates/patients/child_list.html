@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load patient_tags %}
+
+{% block title %}My Children – CareNest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Registered Children</h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400">View and update medical background for pediatric care</p>
+        </div>
+        <a href="{% url 'patients:child_create' %}" class="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs shadow-md shadow-teal-600/20 transition-all hover:scale-105">
+            + Add Child
+        </a>
+    </div>
+
+    {% if children %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for child in children %}
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-teal-600 to-teal-400 text-white font-bold flex items-center justify-center text-base">
+                                {{ child.first_name|make_list|first|upper }}
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-white text-base">{{ child.full_name }}</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">{{ child.date_of_birth|calculate_age }} · {{ child.get_gender_display }}</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                            {{ child.blood_group }}
+                        </span>
+                    </div>
+
+                    {% if child.known_allergies %}
+                        <div>
+                            <p class="text-[11px] font-bold text-rose-600 dark:text-rose-400 mb-1">Known Allergies:</p>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 bg-rose-50/50 dark:bg-rose-950/20 p-2 rounded-lg border border-rose-100 dark:border-rose-900/50">
+                                {{ child.known_allergies }}
+                            </p>
+                        </div>
+                    {% endif %}
+
+                    {% if child.previous_skin_conditions %}
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Skin History:</p>
+                            <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                                {{ child.previous_skin_conditions }}
+                            </p>
+                        </div>
+                    {% endif %}
+
+                    <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                        <a href="{% url 'patients:child_detail' child.id %}" class="font-semibold text-teal-600 dark:text-teal-400 hover:underline">
+                            View Full Record →
+                        </a>
+                        <a href="{% url 'patients:child_update' child.id %}" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-200 dark:hover:bg-slate-700">
+                            Edit Profile
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-12 p-8 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 space-y-3">
+            <h3 class="font-bold text-slate-900 dark:text-white text-base">No children registered yet</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Click below to register your first child.</p>
+            <a href="{% url 'patients:child_create' %}" class="inline-block px-4 py-2 rounded-xl bg-teal-600 text-white font-bold text-xs">
+                Add Child Profile
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

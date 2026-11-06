@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Clinician Command Center – CareNest{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Doctor Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-gradient-to-r from-slate-900 to-teal-900 text-white shadow-lg">
+        <div>
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-white/20 mb-2">Pediatric Clinician Portal</span>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Dr. {{ user.get_full_name|default:user.username }}</h1>
+            <p class="text-xs sm:text-sm text-teal-200 mt-1">Review skin lesion photos, clinical histories, and formulate teledermatology treatment plans.</p>
+        </div>
+        <div>
+            <a href="{% url 'appointments:doctor_appointment_list' %}" class="px-4 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-600 text-white text-xs font-bold transition-colors">
+                View Full Patient Queue
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Metrics -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Pending Triage</p>
+            <p class="text-3xl font-extrabold text-amber-500 mt-1">{{ pending_reviews|length }}</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">In Clinical Review</p>
+            <p class="text-3xl font-extrabold text-sky-500 mt-1">{{ active_reviews|length }}</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Today's Schedule</p>
+            <p class="text-3xl font-extrabold text-teal-600 dark:text-teal-400 mt-1">{{ today_appointments|length }}</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Completed Cases</p>
+            <p class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">{{ completed_count }}</p>
+        </div>
+    </div>
+
+    <!-- Active Patient Cases Queue -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Active Patient Triage Queue</h2>
+            <span class="text-xs text-slate-400">Click a case to inspect images & provide assessment</span>
+        </div>
+
+        {% if recent_queue %}
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850 shadow-sm">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-200 dark:border-slate-800">
+                        <tr>
+                            <th class="px-6 py-3.5">Child Patient</th>
+                            <th class="px-6 py-3.5">Scheduled Slot</th>
+                            <th class="px-6 py-3.5">Primary Concern</th>
+                            <th class="px-6 py-3.5">Severity</th>
+                            <th class="px-6 py-3.5">Status</th>
+                            <th class="px-6 py-3.5 text-right">Clinical Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        {% for appt in recent_queue %}
+                            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                                    {{ appt.child.full_name }}
+                                    <span class="block text-[11px] text-slate-400 font-normal">Parent: {{ appt.parent.get_full_name|default:appt.parent.username }}</span>
+                                </td>
+                                <td class="px-6 py-4 text-slate-600 dark:text-slate-300">
+                                    {{ appt.scheduled_date }}<br><span class="text-slate-400">{{ appt.scheduled_time }}</span>
+                                </td>
+                                <td class="px-6 py-4 text-slate-600 dark:text-slate-300 max-w-xs truncate">
+                                    {{ appt.chief_complaint }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full
+                                        {% if appt.severity == 'URGENT' %}bg-rose-100 text-rose-800 dark:bg-rose-950/50 dark:text-rose-300
+                                        {% elif appt.severity == 'MODERATE' %}bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300
+                                        {% else %}bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300{% endif %}">
+                                        {{ appt.get_severity_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full
+                                        {% if appt.status == 'COMPLETED' %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300
+                                        {% elif appt.status == 'PENDING' %}bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300
+                                        {% else %}bg-sky-100 text-sky-800 dark:bg-sky-950/50 dark:text-sky-300{% endif %}">
+                                        {{ appt.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="{% url 'appointments:appointment_detail' appt.id %}" class="inline-block px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-sm">
+                                        Review Case →
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-12 p-8 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800">
+                <p class="text-xs text-slate-400">No active patient appointments assigned yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

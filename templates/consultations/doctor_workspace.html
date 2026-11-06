@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+{% load patient_tags %}
+
+{% block title %}Clinical Review – {{ child.full_name }} – CareNest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Top Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="flex items-center space-x-3">
+            <a href="{% url 'appointments:doctor_dashboard' %}" class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                ←
+            </a>
+            <div>
+                <h1 class="text-lg font-bold text-slate-900 dark:text-white">
+                    Clinical Workbench · {{ child.full_name }}
+                </h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Case #{{ appointment.id }} · Status: {{ appointment.get_status_display }}
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            {% if consultation.is_finalized %}
+                <span class="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 text-xs font-bold">
+                    ✓ Finalized & Released
+                </span>
+                <a href="{% url 'consultations:download_pdf' consultation.id %}" class="px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100">
+                    Download PDF
+                </a>
+            {% else %}
+                <span class="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 text-xs font-bold">
+                    Draft Review Mode
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 2-Column Split Workspace -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Pane: Patient Context & Multimedia (5 cols) -->
+        <div class="lg:col-span-5 space-y-6">
+            <!-- Child Demographics Card -->
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Patient Demographics</h3>
+                    <span class="text-xs font-bold text-teal-600 dark:text-teal-400">{{ child.date_of_birth|calculate_age }}</span>
+                </div>
+                <div class="text-xs space-y-2">
+                    <p><strong class="text-slate-700 dark:text-slate-300">Name:</strong> {{ child.full_name }} ({{ child.get_gender_display }})</p>
+                    <p><strong class="text-slate-700 dark:text-slate-300">Parent:</strong> {{ child.parent.get_full_name|default:child.parent.username }} ({{ child.parent.email }})</p>
+                    <p><strong class="text-rose-600 dark:text-rose-400">Allergies:</strong> {{ child.known_allergies|default:"None reported" }}</p>
+                    <p><strong class="text-slate-700 dark:text-slate-300">Past Skin Conditions:</strong> {{ child.previous_skin_conditions|default:"None reported" }}</p>
+                    <p><strong class="text-slate-700 dark:text-slate-300">Active Meds:</strong> {{ child.current_medications|default:"None" }}</p>
+                </div>
+            </div>
+
+            <!-- Complaint & Reported Timeline -->
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Consultation Complaint</h3>
+                <div class="text-xs space-y-1.5">
+                    <p><strong class="text-slate-700 dark:text-slate-300">Complaint:</strong> {{ appointment.chief_complaint }}</p>
+                    <p><strong class="text-slate-700 dark:text-slate-300">Duration:</strong> {{ appointment.duration_of_symptoms }}</p>
+                    <p><strong class="text-slate-700 dark:text-slate-300">Reported Urgency:</strong> {{ appointment.get_severity_display }}</p>
+                </div>
+            </div>
+
+            <!-- Uploaded Skin Photos Gallery -->
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Clinical Skin Photos</h3>
+                    <span class="text-[11px] text-slate-400">{{ skin_images|length }} images</span>
+                </div>
+
+                {% if skin_images %}
+                    <div class="grid grid-cols-2 gap-3">
+                        {% for img in skin_images %}
+                            <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 group relative">
+                                <a href="{{ img.image.url }}" target="_blank">
+                                    <img src="{{ img.image.url }}" alt="Skin lesion" class="w-full h-36 object-cover group-hover:scale-105 transition-transform">
+                                </a>
+                                <div class="p-2 text-[10px] bg-slate-50 dark:bg-slate-800">
+                                    <p class="font-bold truncate">{{ img.get_body_part_display }}</p>
+                                    <p class="text-slate-400">{{ img.get_view_type_display }}</p>
+                                    {% if img.notes %}
+                                        <p class="text-[9px] text-slate-500 italic mt-0.5 truncate">{{ img.notes }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-xs text-slate-400 italic">No skin images uploaded for this consultation.</p>
+                {% endif %}
+            </div>
+
+            <!-- AI Triage Observations Block -->
+            <div class="p-6 rounded-2xl bg-teal-50/50 dark:bg-teal-950/20 border border-teal-200/60 dark:border-teal-900/40 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-teal-800 dark:text-teal-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+                        AI Clinical Assistant
+                    </h3>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-300">
+                        Decision Support
+                    </span>
+                </div>
+
+                <div id="ai-vision-results" class="space-y-2 text-xs">
+                    <p class="text-slate-600 dark:text-slate-300">Click below to analyze the uploaded patient photos using multimodal AI assistance.</p>
+                </div>
+
+                {% if skin_images %}
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        {% for img in skin_images %}
+                            <button type="button" onclick="triggerVisionAnalysis({{ img.id }})" class="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs shadow-sm transition-colors">
+                                🔍 Analyze Photo #{{ forloop.counter }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Pane: Clinical Documentation Form (7 cols) -->
+        <div class="lg:col-span-7">
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">Doctor Clinical Documentation</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Record clinical examination, differential diagnoses, prescriptions, and home care instructions.
+                    </p>
+                </div>
+
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+
+                    <!-- Section: Diagnosis -->
+                    <div class="space-y-4 pt-2">
+                        <h3 class="text-xs uppercase font-bold text-teal-600 dark:text-teal-400 tracking-wider">
+                            1. Clinical Diagnosis & Examination
+                        </h3>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                Primary Clinical Assessment *
+                            </label>
+                            {{ consultation_form.clinical_assessment }}
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                    Severity Level *
+                                </label>
+                                {{ consultation_form.severity }}
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                    Differential Diagnoses
+                                </label>
+                                {{ consultation_form.differential_diagnosis }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                Confidential Clinician Notes (Internal Only)
+                            </label>
+                            {{ consultation_form.clinical_notes }}
+                        </div>
+                    </div>
+
+                    <!-- Section: Treatment Plan -->
+                    <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <h3 class="text-xs uppercase font-bold text-teal-600 dark:text-teal-400 tracking-wider">
+                            2. Treatment Plan & Prescriptions
+                        </h3>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                Prescribed Medications / Ointments *
+                            </label>
+                            {{ treatment_form.prescribed_medications }}
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                Home Care, Bathing & Trigger Avoidance *
+                            </label>
+                            {{ treatment_form.care_instructions }}
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">
+                                Emergency Warning Signs for Parent
+                            </label>
+                            {{ treatment_form.warning_signs }}
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                    Follow-up Recommended Date
+                                </label>
+                                {{ treatment_form.follow_up_date }}
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                    Follow-up Notes
+                                </label>
+                                {{ treatment_form.follow_up_instructions }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+                        <button type="submit" name="save_draft" class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            Save Draft
+                        </button>
+                        
+                        <button type="submit" name="finalize" value="true" onclick="return confirm('Finalize and issue report to parent? Once finalized, the case is marked completed.')" class="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-md shadow-teal-600/20 transition-all hover:scale-105">
+                            ✓ Finalize & Issue Consultation Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    async function triggerVisionAnalysis(imageId) {
+        const resultsDiv = document.getElementById('ai-vision-results');
+        resultsDiv.innerHTML = '<p class="text-xs text-teal-600 animate-pulse font-medium">Analyzing photograph with multimodal vision model...</p>';
+
+        try {
+            const res = await fetch(`/ai/api/analyze-image/${imageId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+            const data = await res.json();
+            if (data.success && data.result) {
+                const r = data.result;
+                let featuresHtml = '';
+                if (r.visible_characteristics) {
+                    featuresHtml = r.visible_characteristics.map(c => `<li>• ${c}</li>`).join('');
+                }
+                resultsDiv.innerHTML = `
+                    <div class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-teal-200 dark:border-teal-800 space-y-2">
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="font-bold text-teal-700 dark:text-teal-300">Quality: ${r.image_quality}</span>
+                            <span class="text-slate-400">${r.resolution_status}</span>
+                        </div>
+                        <ul class="text-[11px] text-slate-700 dark:text-slate-200 space-y-0.5">
+                            ${featuresHtml}
+                        </ul>
+                        <p class="text-[10px] text-amber-600 dark:text-amber-400 font-medium">${r.clinical_disclaimer}</p>
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = '<p class="text-xs text-rose-500">Analysis failed.</p>';
+            }
+        } catch (err) {
+            resultsDiv.innerHTML = '<p class="text-xs text-rose-500">Error connecting to AI service.</p>';
+        }
+    }
+</script>
+{% endblock %}
